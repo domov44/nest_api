@@ -74,18 +74,30 @@ export class TagsService {
   }
 
   async remove(id: number, userId: number): Promise<void> {
-    const tag = await this.tagRepository.findOne({ where: { id }, relations: ['user'] });
-
+    const tag = await this.tagRepository.findOne({
+      where: { id },
+      relations: ['user', 'categories'],
+    });
+  
     if (!tag) {
       throw new NotFoundException('Tag not found');
     }
-
+  
     if (tag.user.id !== userId) {
       throw new ForbiddenException("You don't have permission to delete this tag.");
     }
-
+  
+    if (tag.categories.length > 0) {
+      await this.tagRepository
+        .createQueryBuilder()
+        .relation(Tag, 'categories')
+        .of(tag)
+        .remove(tag.categories);
+    }
+  
     await this.tagRepository.delete(id);
   }
+  
 
   async getGithubTopics(githubName?: string): Promise<string[]> {
     if (!githubName) {
