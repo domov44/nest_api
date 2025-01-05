@@ -31,7 +31,7 @@ export class FeedController {
   ) {
     const userId = req.user.sub;
 
-    const parsedMaxResults = parseInt(maxResults, 9);
+    const parsedMaxResults = parseInt(maxResults, 10);
     if (isNaN(parsedMaxResults)) {
       throw new Error('Invalid maxResults parameter. It must be a number.');
     }
@@ -53,7 +53,7 @@ export class FeedController {
   ) {
     const userId = req.user.sub;
 
-    const parsedMaxResults = parseInt(maxResults, 9);
+    const parsedMaxResults = parseInt(maxResults, 10);
     if (isNaN(parsedMaxResults)) {
       throw new Error('Invalid maxResults parameter. It must be a number.');
     }
