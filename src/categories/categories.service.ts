@@ -99,15 +99,18 @@ export class CategoriesService {
       );
     }
 
-    const userTags = await this.tagRepository.find({
-      where: {
-        id: In(tags.map((tag) => tag.id)),
-        user: { id: userId },
-      },
-    });
+    const userTags = [];
+    for (const tag of tags) {
+      const tagFromDb = await this.tagRepository.findOneBy({
+        id: tag.id,
+        user: { id: userId }
+      });
 
-    if (userTags.length !== tags.length) {
-      throw new NotFoundException('One or more tags not found or do not belong to the user');
+      if (!tagFromDb) {
+        throw new NotFoundException('One or more tags not found or do not belong to the user');
+      }
+
+      userTags.push(tagFromDb);
     }
 
     category.label = updateCategoryDto.label;
@@ -116,6 +119,7 @@ export class CategoriesService {
 
     return this.categoryRepository.save(category);
   }
+
 
 
   async remove(id: number, userId: number): Promise<void> {
