@@ -26,12 +26,12 @@ export class FeedController {
   @ApiBearerAuth()
   async searchByTags(
     @Request() req,
-    @Query('maxResults') maxResults: string = '10',
+    @Query('maxResults') maxResults: string = '9',
     @Query('pageToken') pageToken?: string,
   ) {
     const userId = req.user.sub;
 
-    const parsedMaxResults = parseInt(maxResults, 10);
+    const parsedMaxResults = parseInt(maxResults, 9);
     if (isNaN(parsedMaxResults)) {
       throw new Error('Invalid maxResults parameter. It must be a number.');
     }
@@ -48,11 +48,12 @@ export class FeedController {
   async searchByCategory(
     @Request() req,
     @Param('categoryId') categoryId: number,
-    @Query('maxResults') maxResults: string = '10',
+    @Query('maxResults') maxResults: string = '9',
+    @Query('pageToken') pageToken?: string,
   ) {
     const userId = req.user.sub;
 
-    const parsedMaxResults = parseInt(maxResults, 10);
+    const parsedMaxResults = parseInt(maxResults, 9);
     if (isNaN(parsedMaxResults)) {
       throw new Error('Invalid maxResults parameter. It must be a number.');
     }
@@ -67,6 +68,6 @@ export class FeedController {
 
     const tagsArray = category.tags.map(tag => tag.label);
 
-    return this.feedService.searchByTags(tagsArray, parsedMaxResults);
+    return this.feedService.searchByTags(tagsArray, parsedMaxResults, pageToken);
   }
 }
