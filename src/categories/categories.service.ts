@@ -88,35 +88,43 @@ export class CategoriesService {
       where: { id },
       relations: ['user', 'tags'],
     });
-
+  
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-
+  
     if (category.user.id !== userId) {
       throw new ForbiddenException(
         "You don't have permission to update this category.",
       );
     }
-
-    const userTags = [];
-    for (const tag of tags) {
-      const tagFromDb = await this.tagRepository.findOneBy({
-        id: tag.id,
-        user: { id: userId }
-      });
-
-      if (!tagFromDb) {
-        throw new NotFoundException('One or more tags not found or do not belong to the user');
-      }
-
-      userTags.push(tagFromDb);
+  
+    const userTags = await this.tagRepository.find({
+      where: { user: { id: userId } },
+    });
+    
+    const userTagIds = userTags.map(tag => tag.id);
+    
+    let tagsToUse: Tag[];
+    if (typeof tags[0] === 'number') {
+      tagsToUse = await this.tagRepository.findByIds(tags);
+    } else {
+      tagsToUse = tags;
     }
-
+  
+    const invalidTags = tagsToUse.filter(tag => !userTagIds.includes(tag.id));
+    console.log('invalidTags:', invalidTags);
+  
+    if (invalidTags.length > 0) {
+      throw new NotFoundException(
+        'One or more tags not found or do not belong to the user',
+      );
+    }
+  
     category.label = updateCategoryDto.label;
     category.slug = updateCategoryDto.slug;
-    category.tags = userTags;
-
+    category.tags = tagsToUse;
+  
     return this.categoryRepository.save(category);
   }
 
