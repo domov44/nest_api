@@ -16,7 +16,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'https://custom-feed-frontend.vercel.app',
+      'https://feedzis.vercel.app',
       'http://localhost:8000',
       'http://127.0.0.1:8000',
     ],
